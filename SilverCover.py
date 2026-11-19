@@ -146,14 +146,16 @@ class Encryptor:
 
     def EncryptFile(self, FileName):
         try:
-            pass
+            FileData = self.l.Load(FileName)
+            CipherFileData, Tag = self.AESEncrypt(FileData, MajorKey, MinorKey)
+            CipherTag = self.RSAEncrypt(Tag)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.EncryptFile() : {str(e)}' + Reset)
             sys.exit(0)
 
     def DecryptFile(self, FileName):
         try:
-            pass
+            CipherFileData = self.l.Load(FileName)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.DecryptFile() : {str(e)}' + Reset)
             sys.exit(0)
