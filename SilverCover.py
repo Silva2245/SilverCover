@@ -35,20 +35,56 @@ class Loader:
 
 class Injector:
     def __init__(self):
-        self.n = None
+        self.l = Loader()
+        SplitMsg = str('Spectre').encode('utf-8')
+        self.Splitter = md5(SplitMsg).hexdigest().encode('utf-8')
+        if Verbose == True:
+            print(Cyan + 'Injector Splitter Initialized..' + Reset)
 
     def Steg(self, Data1 : bytes, Data2 : bytes) -> bytes:
         try:
-            pass
+            nd = Data1 + self.Splitter + Data2
+            if Verbose == True:
+                print(Cyan + 'Data Injected Using Steg..' + Reset)
+            return nd
         except Exception as e:
             print(Red + f'Error Happened in Injector.Steg() : {str(e)}' + Reset)
             sys.exit(0)
 
     def DeSteg(self, Data : bytes) -> tuple[bytes]:
         try:
-            pass
+            sd : tuple[bytes]= Data.split(self.Splitter)
+            if Verbose == True:
+                print(Cyan + 'Data Extracted Using DeSteg..' + Reset)
+            return sd
         except Exception as e:
             print(Red + f'Error Happened in Injector.DeSteg() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def StegFile(self, StegFileName : str, InjectFileName : str):
+        try:
+            StegFileData = self.l.Load(StegFileName)
+            InjectFileData = self.l.Load(InjectFileName)
+            FinalData = self.Steg(StegFileData, InjectFileData)
+            NewFileName = StegFileName + '.s'
+            self.l.SaveFile(NewFileName, FinalData)
+            if Verbose == True:
+                print(Cyan + f'File {InjectFileName} Injected into {StegFileName} and Saved as {NewFileName}..' + Reset)
+        except Exception as e:
+            print(Red + f'Error Happened in Injector.StegFile() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def DeStegFile(self, DeStegFileName : str):
+        try:
+            StegFileData = self.l.Load(DeStegFileName)
+            FileData, StegData = self.DeSteg(StegFileData)
+            NewFileName = DeStegFileName.replace('.s', '')
+            self.l.SaveFile(NewFileName, FileData)
+            self.l.SaveFile('StegData', StegData)
+            if Verbose == True:
+                print(Cyan + f'File {DeStegFileName} DeStegged and Saved as {NewFileName} and StegData..' + Reset)
+        except Exception as e:
+            print(Red + f'Error Happened in Injector.DeStegFile() : {str(e)}' + Reset)
             sys.exit(0)
 
 class Encryptor:
@@ -149,13 +185,25 @@ class Encryptor:
             FileData = self.l.Load(FileName)
             CipherFileData, Tag = self.AESEncrypt(FileData, MajorKey, MinorKey)
             CipherTag = self.RSAEncrypt(Tag)
+            FinalData = self.i.Steg(CipherFileData, CipherTag)
+            NewFileName = FileName + '.e'
+            self.l.SaveFile(NewFileName, FinalData)
+            if Verbose == True:
+                print(Cyan + f'File {FileName} Encrypted and Saved as {NewFileName}..' + Reset)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.EncryptFile() : {str(e)}' + Reset)
             sys.exit(0)
 
     def DecryptFile(self, FileName):
         try:
-            CipherFileData = self.l.Load(FileName)
+            Data = self.l.Load(FileName)
+            CipherFileData, CipherTag = self.i.DeSteg(Data)
+            Tag = self.RSADecrypt(CipherTag)
+            FileData = self.AESDecrypt(CipherFileData, Tag, MajorKey, MinorKey)
+            NewFileName = FileName.replace('.e', '')
+            self.l.SaveFile(NewFileName, FileData)
+            if Verbose == True:
+                print(Cyan + f'File {FileName} Decrypted and Saved as {NewFileName}..' + Reset)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.DecryptFile() : {str(e)}' + Reset)
             sys.exit(0)
@@ -167,6 +215,30 @@ class PlayGround:
     def Home(self):
         try:
             print(Cyan + '****************** Silver Cover ******************' + Reset)
+            if EncFileName not in [None, 'None', '']:
+                if MajorKey not in [None, 'None', ''] and MinorKey not in [None, 'None', '']:
+                    e = Encryptor()
+                    e.EncryptFile(EncFileName)
+                else:
+                    print(Grey + 'Major Key and Minor Key are required for Encryption..' + Reset)
+                    sys.exit(0)
+            elif DecFileName not in [None, 'None', '']:
+                if MajorKey not in [None, 'None', ''] and MinorKey not in [None, 'None', '']:
+                    d = Encryptor()
+                    d.DecryptFile(DecFileName)
+                else:
+                    print(Grey + 'Major Key and Minor Key are required for Decryption..' + Reset)
+                    sys.exit(0)
+            elif StegFileName not in [None, 'None', '']:
+                if InjectFileName not in [None, 'None', '']:
+                    i = Injector()
+                    i.StegFile(StegFileName, InjectFileName)
+                else:
+                    print(Grey + 'Inject File Name is required for Steg..' + Reset)
+                    sys.exit(0)
+            elif DeStegFileName not in [None, 'None', '']:
+                i = Injector()
+                i.DeStegFile(DeStegFileName)
         except Exception as e:
             print(Red + f'Error Happened in PlayGround.Home() : {str(e)}' + Reset)
             sys.exit(0)
@@ -188,6 +260,7 @@ if __name__ == '__main__':
     p.add_argument('-mjk', type=str, metavar='AES Major Key')
     p.add_argument('-s', type=str, metavar='File Name Used For Steg')
     p.add_argument('-f', type=str, metavar='File Name Injected Into Steg')
+    p.add_argument('-ds', type=str, metavar='File Name Used For DeSteg')
     a = p.parse_args()
 
     EncFileName = str(a.e)
@@ -196,6 +269,7 @@ if __name__ == '__main__':
     MajorKey = str(a.mjk)
     StegFileName = str(a.s)
     InjectFileName = str(a.f)
+    DeStegFileName = str(a.ds)
 
     Verbose : bool = True if str(a.v) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.v) != None else False
 
