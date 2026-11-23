@@ -10,7 +10,7 @@ class Loader:
     def __init__(self):
         self.n = None
 
-    def Load(FileName : str) -> bytes:
+    def Load(self, FileName : str) -> bytes:
         try:
             f = open(FileName, 'rb')
             d = f.read()
@@ -22,7 +22,7 @@ class Loader:
             print(Red + f'Error Happened in Loader.Load() : {str(e)}')
             sys.exit(0)
 
-    def SaveFile(FileName : str, FileData : bytes):
+    def SaveFile(self, cleFileName : str, FileData : bytes):
         try:
             f = open(FileName, 'wb')
             f.write(FileData)
@@ -216,6 +216,8 @@ class PlayGround:
         try:
             print(Cyan + '****************** Silver Cover ******************' + Reset)
             if EncFileName not in [None, 'None', '']:
+                if Verbose == True:
+                    print(Cyan + f'Encrypted File Name : {EncFileName}' + Reset)
                 if MajorKey not in [None, 'None', ''] and MinorKey not in [None, 'None', '']:
                     e = Encryptor()
                     e.EncryptFile(EncFileName)
@@ -223,6 +225,8 @@ class PlayGround:
                     print(Grey + 'Major Key and Minor Key are required for Encryption..' + Reset)
                     sys.exit(0)
             elif DecFileName not in [None, 'None', '']:
+                if Verbose == True:
+                    print(Cyan + f'Decrypted File Name : {DecFileName}' + Reset)
                 if MajorKey not in [None, 'None', ''] and MinorKey not in [None, 'None', '']:
                     d = Encryptor()
                     d.DecryptFile(DecFileName)
@@ -230,6 +234,8 @@ class PlayGround:
                     print(Grey + 'Major Key and Minor Key are required for Decryption..' + Reset)
                     sys.exit(0)
             elif StegFileName not in [None, 'None', '']:
+                if Verbose == True:
+                    print(Cyan + f'Steg File Name : {StegFileName}' + Reset)
                 if InjectFileName not in [None, 'None', '']:
                     i = Injector()
                     i.StegFile(StegFileName, InjectFileName)
@@ -237,6 +243,8 @@ class PlayGround:
                     print(Grey + 'Inject File Name is required for Steg..' + Reset)
                     sys.exit(0)
             elif DeStegFileName not in [None, 'None', '']:
+                if Verbose == True:
+                    print(Cyan + f'DeSteg File Name : {DeStegFileName}' + Reset)
                 i = Injector()
                 i.DeStegFile(DeStegFileName)
         except Exception as e:
