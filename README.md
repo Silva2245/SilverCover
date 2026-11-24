@@ -168,5 +168,3 @@ python3 SilverCover.py -e secret.txt -mjk "my-major-key" -mnk "123456789012" -v 
 ```
 
 ---
-
-That's it! You now have a working, user-friendly guide to installing and running **SilverCover**. If you'd like me to explain any specific part in more depth — such as how AES-GCM works under the hood or how the RSA key pair is structured — just let me know. 😊
