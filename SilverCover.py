@@ -22,7 +22,7 @@ class Loader:
             print(Red + f'Error Happened in Loader.Load() : {str(e)}')
             sys.exit(0)
 
-    def SaveFile(self, cleFileName : str, FileData : bytes):
+    def SaveFile(self, FileName : str, FileData : bytes):
         try:
             f = open(FileName, 'wb')
             f.write(FileData)
