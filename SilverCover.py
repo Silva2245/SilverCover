@@ -36,7 +36,76 @@ class Loader:
 
 class KeyGenerator:
     def __init__(self):
-        self.n = None
+        self.al = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                   'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+                    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+                    'u', 'v', 'w', 'x', 'y', 'z',
+                    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+                    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                    'U', 'V', 'W', 'X', 'Y', 'Z',
+                    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+                    '-', '_', '=', '+', '[', ']', '{', '}', '|', ';',
+                    ':', '"', "'", '<', '>', ',', '.', '?', '/', '`', '~']
+
+    def GenerateRandomMinorKey(self) -> str:
+        try:
+            k : str = ''
+            if Verbose == True:
+                print(Cyan + 'Generating Random Minor Key..' + Reset)
+            for x in range(12):
+                c = choice(self.al)
+                k = k+c
+                if Verbose == True:
+                    print(Magenta + f'Generated : {k}' + Reset)
+            vm = self.ValidateMinorKey(k)
+            if vm == True:
+                return k
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.GenerateRandomMinorKey() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def GenerateRandomMajorKey(self) -> str:
+        try:
+            k : str = ''
+            if Verbose == True:
+                print(Cyan + 'Generating Random Major Key..' + Reset)
+            for x in range(32):
+                c = choice(self.al)
+                k = k+c
+                if Verbose == True:
+                    print(Magenta + f'Generated : {k}' + Reset)
+            vm = self.ValidateMajorKey(k)
+            if vm == True:
+                return k
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.GenerateRandomMajorKey() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def ValidateMinorKey(self, MinorKey : str) -> bytes:
+        try:
+            if len(MinorKey) == 12:
+                if Verbose == True:
+                    print(Cyan + f'Minor Key {MinorKey} Validated..' + Reset)
+                return True
+            else:
+                print(Grey + 'Minor Key Length Must be equal to 12 digits' + Reset)
+                return False
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.ValidateMinorKey() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def ValidateMajorKey(self, MajorKey : str) -> bool:
+        try:
+            if len(MajorKey) == 32:
+                if Verbose == True:
+                    print(Cyan + f'Major Key {MajorKey} Validated..' + Reset)
+                return True
+            else:
+                print(Grey + 'Major Key Length Must be equal to 32 digits' + Reset)
+                return False
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.ValidateMajorKey() : {str(e)}' + Reset)
+            sys.exit(0)
 
 class Injector:
     def __init__(self):
@@ -252,6 +321,14 @@ class PlayGround:
                     print(Cyan + f'DeSteg File Name : {DeStegFileName}' + Reset)
                 i = Injector()
                 i.DeStegFile(DeStegFileName)
+            elif GenerateMinorKey == True:
+                kg = KeyGenerator()
+                RandomMinorKey : str = kg.GenerateRandomMinorKey()
+                print(Green + f'Generated Minor Key : {RandomMinorKey}' + Reset)
+            elif GenerateMajorKey == True:
+                kg = KeyGenerator()
+                RandomMajorKey : str = kg.GenerateRandomMajorKey()
+                print(Green + f'Generated Major Key : {RandomMajorKey}' + Reset)
         except Exception as e:
             print(Red + f'Error Happened in PlayGround.Home() : {str(e)}' + Reset)
             sys.exit(0)
@@ -263,6 +340,7 @@ if __name__ == '__main__':
     Cyan = Fore.CYAN + Style.BRIGHT
     Grey = Fore.LIGHTBLACK_EX + Style.BRIGHT
     Black = Fore.BLACK + Style.BRIGHT
+    Magenta = Fore.MAGENTA + Style.BRIGHT
     Reset = Fore.RESET + Style.RESET_ALL
 
     p = ArgumentParser()
@@ -274,6 +352,8 @@ if __name__ == '__main__':
     p.add_argument('-s', type=str, metavar='File Name Used For Steg')
     p.add_argument('-f', type=str, metavar='File Name Injected Into Steg')
     p.add_argument('-ds', type=str, metavar='File Name Used For DeSteg')
+    p.add_argument('-gmnk', type=str, metavar='Generate Random Minor Key')
+    p.add_argument('-gmjk', type=str, metavar='Generate Random Major Key')
     a = p.parse_args()
 
     EncFileName = str(a.e)
@@ -285,6 +365,8 @@ if __name__ == '__main__':
     DeStegFileName = str(a.ds)
 
     Verbose : bool = True if str(a.v) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.v) != None else False
+    GenerateMinorKey : bool = True if str(a.gmnk) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.gmnk) != None else False
+    GenerateMajorKey : bool = True if str(a.gmjk) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.gmjk) != None else False
 
     pg = PlayGround()
     pg.Home()
