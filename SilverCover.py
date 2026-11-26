@@ -5,6 +5,7 @@ import rsa
 from colorama import *
 from argparse import *
 from hashlib import *
+from random import *
 
 class Loader:
     def __init__(self):
@@ -32,6 +33,10 @@ class Loader:
         except Exception as e:
             print(Red + f'Error Happened in Loader.SaveFile() : {str(e)}' + Reset)
             sys.exit(0)
+
+class KeyGenerator:
+    def __init__(self):
+        self.n = None
 
 class Injector:
     def __init__(self):
