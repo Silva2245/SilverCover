@@ -211,6 +211,9 @@ class Encryptor:
         try:
             self.l = Loader()
             self.i = Injector()
+            self.kg = KeyGenerator()
+            self.defMnk : list[str] = self.kg.defMinorKeys
+            self.defMjk : list[str] = self.kg.defMajorKeys
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.__init__() : {str(e)}' + Reset)
             sys.exit(0)
@@ -270,6 +273,20 @@ class Encryptor:
                 sys.exit(0)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.AESDecrypt() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def DefAESEncrypt(self, Data : bytes) -> tuple[bytes]:
+        try:
+            pass
+        except Exception as e:
+            print(Red + f'Error Happened in Encryptor.DefAESEncrypt() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def DefAESDecrypt(self, Data : bytes) -> bytes:
+        try:
+            pass
+        except Exception as e:
+            print(Red + f'Error Happened in Encryptor.DefAESDecrypt() : {str(e)}' + Reset)
             sys.exit(0)
 
     def RSAEncrypt(self, Data : bytes) -> bytes:
