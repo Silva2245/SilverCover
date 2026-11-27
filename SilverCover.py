@@ -36,16 +36,31 @@ class Loader:
 
 class KeyGenerator:
     def __init__(self):
-        self.al = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+        self.al : list[str] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
                     'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
                     'u', 'v', 'w', 'x', 'y', 'z',
                     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
                     'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
                     'U', 'V', 'W', 'X', 'Y', 'Z',
-                    '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+                    '!', '@', '#', '$', '^', '&', '*', '(', ')',
                     '-', '_', '=', '+', '[', ']', '{', '}', '|', ';',
-                    ':', '"', "'", '<', '>', ',', '.', '?', '/', '`', '~']
+                    ':', '"', '<', '>', ',', '.', '?', '/', '`', '~']
+        self.defMinorKeys : list[str] = ['AG/}<;802|?!', 'WkBMfX&&D*:[', '2u^{=,kCA"~,', '/D@0Ru4J{;^x', 'qp{-_5S2=*b3', '{mdNw+O8C$1v', 
+                                         'GRkeg{of*3^N', '8j.@},kF8CK;', 'gKO)}&98K3fv', 'J/ixrCQlevU-', 'MV1Ic+f6#O/]', '8QDv4T.z,N"0', 
+                                         'F5/23y_ZR#^)', 'Y@encZ`nQu!`', 'prNzuvo:I~W4', '=6NNl$!uZ_H(', '-^}&{)2VR3PA', 'E3N0xgi~}:TR', 
+                                         '.8LAw`Eve0iQ', 'b8p[`2OR3FBH', ':ScEi0m$T-O6', 'olK7$$;lxnOT', 'HJueFp.d350p', ')AR:m{PK!yo_', 
+                                         ']]&]9Kfw@S91', 'Ut7n:2#@}^~u', '(*,;sYdqwkDf', '0Us?Q-m7!]b`', '8_8FdZIF}fAB', 'E-asGy/LXo=p']
+        self.defMajorKeys : list[str] = ['::?j.w*5G>r&1TAUZ>:u1_1K01;l=)(S', '16"Ki/K5@?kXq(mG6>I$?mK=xQt#RVjm', '/&J|<GTGG_fs8o(Pmq6*mwma>7iGp_G`', 
+                                         '"<Jkh}>ITL<>Yid!o9,=h~XvRPEYLe@F', 'lNK)9c<n8eU]+H]dpb84mIYZNpc}dYQi', '~A.BZsKJrRF=j5PCPbw4[4`PvG=Ol(kG', 
+                                         '//ElC$C(kZ^kEVY0fIV/Q<e1d6a5g=H[', '8*PY}r.PM;6Y/I$jchdWjD&J*[am)!U@', '=PeEK1dLl#3]U1-S!6.T[eqr=Wj+I9P#', 
+                                         'cPPMNC7dW.bWp$va*ZA:v6=ZINsXcH2|', '$wEe7Oc2`iZLa2;-KfC/VH_7=_|Nxir.', ']n-cr]jF|UcvB9i0"4dRa~B3t1f)P;OA', 
+                                         'Q58w9e`PFNwniyS@4K^ohSa26Y:]zp$;', 'N]#q7S^N>K"!fh(qa)LZUoXt=>j6a6B2', '#K[UcaZ&c#_vLyw$VdWtG&!U)6L(WtI>', 
+                                         'zDrhie)NmK&IeP#djwm{9hHG`zMXRdfZ', '[[f[HkdTlC}4!PHe![9u9F"UC;Lm1CAj', '>C-b+;JaIlaJWHKw,j{}D-lA;G:?GX7V', 
+                                         'Q/<($5bxjzJ+BNTMb/b*dvjiw0-DW6VT', '90*K4nAAl;;/hiM=W?0iF><`t7y3WI+2', 'CpMs~]7CJa7}pO{=NQb/HLv1iS+hv/<R', 
+                                         'YKBXQibAo9"qH*I8$=JHI[7sh!>;<N][', '@R$tqMKLH+Wv9_ccp&CjDM^Nvx+VI+sR', '"Yv*GAk2R~ocm(`^~54>PQzf;Fz{ZOS}', 
+                                         ']p$7p^h)`.lB"zSBem`D}dMdfSEjHjLp', 'ZC#J-OtD9/KBRkKA}-<q0A)TpXZ$Q)h/', 'bd@Uy^[)C$mya0u9"<hZgr0?jzLfv*Y*', 
+                                         'og(X>jn2aJ34Va&n+"#8+-Ox:Cu>a8vq', '_[5N!:<sca+2k2XQ?IHtqk"/*Zb@t0WS', 'rF!?)(h2Qn{XWOCq)Y;B8(Bc5y]DVA2_']
 
     def GenerateRandomMinorKey(self) -> str:
         try:
@@ -105,6 +120,36 @@ class KeyGenerator:
                 return False
         except Exception as e:
             print(Red + f'Error Happened in KeyGenerator.ValidateMajorKey() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def GenerateRandomMinorKeyList(self, Count : int) -> list[str]:
+        try:
+            l : list[str] = []
+            if Verbose == True:
+                print(Cyan + 'Generating Random Minor Key List' + Reset)
+            for x in range(Count):
+                k = self.GenerateRandomMinorKey()
+                l.append(k)
+                if Verbose == True:
+                    print(Cyan + f'Minor Key {k} Added To The List' + Reset)
+            return l
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.GenerateRandomMinorKeyList() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def GenerateRandomMajorKeyList(self, Count : int) -> list[str]:
+        try:
+            l : list[str] = []
+            if Verbose == True:
+                print(Cyan + 'Generating Random Major Key List' + Reset)
+            for x in range(Count):
+                k = self.GenerateRandomMajorKey()
+                l.append(k)
+                if Verbose == True:
+                    print(Cyan + f'Major Key {k} Added To The List' + Reset)
+            return l
+        except Exception as e:
+            print(Red + f'Error Happened in KeyGenerator.GenerateRandomMajorKeyList() : {str(e)}' + Reset)
             sys.exit(0)
 
 class Injector:
@@ -329,6 +374,14 @@ class PlayGround:
                 kg = KeyGenerator()
                 RandomMajorKey : str = kg.GenerateRandomMajorKey()
                 print(Green + f'Generated Major Key : {RandomMajorKey}' + Reset)
+            elif GenerateMinorKeyList not in [None, 'None', ''] and GenerateMinorKeyList != 0:
+                kg = KeyGenerator()
+                MinorKeyList : list[str] = kg.GenerateRandomMinorKeyList(GenerateMinorKeyList)
+                print(MinorKeyList)
+            elif GenerateMajorKeyList not in [None, 'None', ''] and GenerateMinorKeyList != 0:
+                kg = KeyGenerator()
+                MajorKeyList : list[str] = kg.GenerateRandomMajorKeyList(GenerateMajorKeyList)
+                print(MajorKeyList)
         except Exception as e:
             print(Red + f'Error Happened in PlayGround.Home() : {str(e)}' + Reset)
             sys.exit(0)
@@ -354,6 +407,8 @@ if __name__ == '__main__':
     p.add_argument('-ds', type=str, metavar='File Name Used For DeSteg')
     p.add_argument('-gmnk', type=str, metavar='Generate Random Minor Key')
     p.add_argument('-gmjk', type=str, metavar='Generate Random Major Key')
+    p.add_argument('-gmnkl', type=int, metavar='Generate Random Minor Key List')
+    p.add_argument('-gmjkl', type=int, metavar='Generate Random Major Key List')
     a = p.parse_args()
 
     EncFileName = str(a.e)
@@ -363,6 +418,8 @@ if __name__ == '__main__':
     StegFileName = str(a.s)
     InjectFileName = str(a.f)
     DeStegFileName = str(a.ds)
+    GenerateMinorKeyList : int = a.gmnkl
+    GenerateMajorKeyList : int = a.gmjkl
 
     Verbose : bool = True if str(a.v) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.v) != None else False
     GenerateMinorKey : bool = True if str(a.gmnk) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.gmnk) != None else False
