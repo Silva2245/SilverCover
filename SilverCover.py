@@ -283,7 +283,7 @@ class Encryptor:
             mnk : bytes = choice(self.defMnk).encode('utf-8')
             mjk : bytes = choice(self.defMjk).encode('utf-8')
             a = AES.new(key=mjk, mode=AES.MODE_GCM, nonce=mnk)
-            CipherData, Tag = a.encrypt_and_digest()
+            CipherData, Tag = a.encrypt_and_digest(Data)
             if Verbose == True:
                 print(Green + f'Data Was Encrypted by Defualt Major Key {mjk.decode('utf-8')} and Default Minor Key {mnk.decode('utf-8')}' + Reset)
             return(CipherData, Tag)
@@ -387,7 +387,7 @@ class Encryptor:
             Tag : bytes = DecTag.encode('utf-8')
             if MinorKey == 'def' and MajorKey == 'def':
                 PlainData = self.DefAESDecrypt(CipherData, Tag)
-                print(Green + f'Decrypted Plain Text : {PlainData.decode('utf-8')}' + Reset)
+                print(Green + f'Decrypted Plain Text : {PlainData}' + Reset)
             else:
                 PlainData = self.AESDecrypt(CipherData, Tag, MajorKey, MinorKey)
                 print(Green + f'Decrypted Plain Text : {PlainData.decode('utf-8')}' + Reset)
