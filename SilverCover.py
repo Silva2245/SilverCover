@@ -218,17 +218,20 @@ class Encryptor:
             print(Red + f'Error Happened in Encryptor.__init__() : {str(e)}' + Reset)
             sys.exit(0)
 
-    def CraftMajorKey(self, MajorKey : str) -> bytes:
+    def ValidateMajorKey(self, MajorKey : str) -> bool:
         try:
-            res = md5(MajorKey.encode('utf-8')).hexdigest().encode('utf-8')
-            if Verbose == True:
-                print(Cyan + f'Major Key {res} Crafted..' + Reset)
-            return res
+            if len(MajorKey) == 32:
+                if Verbose == True:
+                    print(Cyan + f'Major Key {MajorKey} Validated..' + Reset)
+                return True
+            else:
+                print(Grey + 'Major Key Length Must be equal to 32 digits' + Reset)
+                return False
         except Exception as e:
-            print(Red + f'Error Happened in Encryptor.CraftMajorKey() : {str(e)}' + Reset)
+            print(Red + f'Error Happened in KeyGenerator.ValidateMajorKey() : {str(e)}' + Reset)
             sys.exit(0)
 
-    def ValidateMinorKey(self, MinorKey : str) -> bytes:
+    def ValidateMinorKey(self, MinorKey : str) -> bool:
         try:
             if len(MinorKey) == 12:
                 if Verbose == True:
@@ -243,10 +246,10 @@ class Encryptor:
 
     def AESEncrypt(self, Data : bytes, MajorKey : str, MinorKey : str) -> tuple[bytes]:
         try:
-            mv = self.ValidateMinorKey(MinorKey)
+            mv : bool = True if self.ValidateMinorKey(MinorKey) == True and self.ValidateMajorKey(MajorKey) == True else False
             if mv == True:
                 mnk = MinorKey.encode('utf-8')
-                mjk = self.CraftMajorKey(MajorKey)
+                mjk = MajorKey.encode('utf-8')
                 a = AES.new(key=mjk, mode=AES.MODE_GCM, nonce=mnk)
                 cipher, tag = a.encrypt_and_digest(Data)
                 if Verbose == True:
@@ -260,10 +263,10 @@ class Encryptor:
 
     def AESDecrypt(self, Data : bytes, Tag : bytes, MajorKey : str, MinorKey : str) -> bytes:
         try:
-            mv = self.ValidateMinorKey(MinorKey)
+            mv : bool = True if self.ValidateMinorKey(MinorKey) == True and self.ValidateMajorKey(MajorKey) == True else False
             if mv == True:
                 mnk = MinorKey.encode('utf-8')
-                mjk = self.CraftMajorKey(MajorKey)
+                mjk = MajorKey.encode('utf-8')
                 a = AES.new(key=mjk, mode=AES.MODE_GCM, nonce=mnk)
                 plain = a.decrypt_and_verify(Data, Tag)
                 if Verbose == True:
@@ -277,14 +280,33 @@ class Encryptor:
 
     def DefAESEncrypt(self, Data : bytes) -> tuple[bytes]:
         try:
-            pass
+            mnk : bytes = choice(self.defMnk).encode('utf-8')
+            mjk : bytes = choice(self.defMjk).encode('utf-8')
+            a = AES.new(key=mjk, mode=AES.MODE_GCM, nonce=mnk)
+            CipherData, Tag = a.encrypt_and_digest()
+            if Verbose == True:
+                print(Green + f'Data Was Encrypted by Defualt Major Key {mjk.decode('utf-8')} and Default Minor Key {mnk.decode('utf-8')}' + Reset)
+            return(CipherData, Tag)
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.DefAESEncrypt() : {str(e)}' + Reset)
             sys.exit(0)
 
-    def DefAESDecrypt(self, Data : bytes) -> bytes:
+    def DefAESDecrypt(self, Data : bytes, Tag : bytes) -> bytes:
         try:
-            pass
+            for x in self.defMjk:
+                for y in self.defMnk:
+                    try:
+                        if Verbose == True:
+                            print(Cyan + f'Trying Major Key {x} and Minor Key {y}' + Reset)
+                        mnk : bytes = y.encode('utf-8')
+                        mjk : bytes = x.encode('utf-8')
+                        a = AES.new(key=mjk, mode=AES.MODE_GCM, nonce=mnk)
+                        plain = a.decrypt_and_verify(Data, Tag)
+                        if Verbose == True:
+                            print(Green + 'Data Decrypted Successfully..' + Reset)
+                        return plain
+                    except Exception as crypt:
+                        continue
         except Exception as e:
             print(Red + f'Error Happened in Encryptor.DefAESDecrypt() : {str(e)}' + Reset)
             sys.exit(0)
@@ -399,6 +421,20 @@ class PlayGround:
                 kg = KeyGenerator()
                 MajorKeyList : list[str] = kg.GenerateRandomMajorKeyList(GenerateMajorKeyList)
                 print(MajorKeyList)
+            elif EncryptText not in [None, 'None', '']:
+                if MinorKey == 'def' and MajorKey == 'def':
+                    e = Encryptor()
+                    PlainData = EncryptText.encode('utf-8')
+                    CipherData, DecryptionTag = e.DefAESEncrypt(PlainData)
+                    print(Cyan + f'Cipher Data : {str(CipherData)}' + Reset)
+                    print(Green + f'Decryption Tag : {str(DecryptionTag)}' + Reset)
+                else:
+                    pass
+            elif DecryptText not in [None, 'None', ''] and Tagg not in [None, 'None', '']:
+                if MinorKey == 'def' and MajorKey == 'def':
+                    pass
+                else:
+                    pass
         except Exception as e:
             print(Red + f'Error Happened in PlayGround.Home() : {str(e)}' + Reset)
             sys.exit(0)
@@ -426,6 +462,9 @@ if __name__ == '__main__':
     p.add_argument('-gmjk', type=str, metavar='Generate Random Major Key')
     p.add_argument('-gmnkl', type=int, metavar='Generate Random Minor Key List')
     p.add_argument('-gmjkl', type=int, metavar='Generate Random Major Key List')
+    p.add_argument('-et', type=str, metavar='Encrypt Plain Text To Cipher Data')
+    p.add_argument('-dt', type=str, metavar='Decrypt Cipher Data To Plain Text')
+    p.add_argument('-tag', type=str, metavar='Tag for Decryption')
     a = p.parse_args()
 
     EncFileName = str(a.e)
@@ -437,6 +476,9 @@ if __name__ == '__main__':
     DeStegFileName = str(a.ds)
     GenerateMinorKeyList : int = a.gmnkl
     GenerateMajorKeyList : int = a.gmjkl
+    EncryptText = str(a.et)
+    DecryptText = str(a.dt)
+    Tagg = str(a.tag)
 
     Verbose : bool = True if str(a.v) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.v) != None else False
     GenerateMinorKey : bool = True if str(a.gmnk) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.gmnk) != None else False
