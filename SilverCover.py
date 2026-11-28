@@ -366,6 +366,35 @@ class Encryptor:
             print(Red + f'Error Happened in Encryptor.DecryptFile() : {str(e)}' + Reset)
             sys.exit(0)
 
+    def EncryptText(self, Text : str):
+        try:
+            PlainData : bytes = Text.encode('utf-8')
+            if MinorKey == 'def' and MajorKey == 'def':
+                CipherData, DecryptionTag = self.DefAESEncrypt(PlainData)
+                print(Cyan + f'Cipher Data : {str(CipherData)}' + Reset)
+                print(Green + f'Decryption Tag : {str(DecryptionTag)}' + Reset)
+            else:
+                CipherData, DecryptionTag = self.AESEncrypt(PlainData, MajorKey, MinorKey)
+                print(Cyan + f'Cipher Data : {str(CipherData)}' + Reset)
+                print(Green + f'Decryption Tag : {str(DecryptionTag)}' + Reset)
+        except Exception as e:
+            print(Red + f'Error Happened in Encryptor.EncryptText() : {str(e)}' + Reset)
+            sys.exit(0)
+
+    def DecryptText(self, CipherText : str, DecTag : str):
+        try:
+            CipherData : bytes = CipherText.encode('utf-8')
+            Tag : bytes = DecTag.encode('utf-8')
+            if MinorKey == 'def' and MajorKey == 'def':
+                PlainData = self.DefAESDecrypt(CipherData, Tag)
+                print(Green + f'Decrypted Plain Text : {PlainData.decode('utf-8')}' + Reset)
+            else:
+                PlainData = self.AESDecrypt(CipherData, Tag, MajorKey, MinorKey)
+                print(Green + f'Decrypted Plain Text : {PlainData.decode('utf-8')}' + Reset)
+        except Exception as e:
+            print(Red + f'Error Happened in Encryptor.DecryptText() : {str(e)}' + Reset)
+            sys.exit(0)
+
 class PlayGround:
     def __init__(self):
         self.n = None
@@ -422,19 +451,11 @@ class PlayGround:
                 MajorKeyList : list[str] = kg.GenerateRandomMajorKeyList(GenerateMajorKeyList)
                 print(MajorKeyList)
             elif EncryptText not in [None, 'None', '']:
-                if MinorKey == 'def' and MajorKey == 'def':
-                    e = Encryptor()
-                    PlainData = EncryptText.encode('utf-8')
-                    CipherData, DecryptionTag = e.DefAESEncrypt(PlainData)
-                    print(Cyan + f'Cipher Data : {str(CipherData)}' + Reset)
-                    print(Green + f'Decryption Tag : {str(DecryptionTag)}' + Reset)
-                else:
-                    pass
-            elif DecryptText not in [None, 'None', ''] and Tagg not in [None, 'None', '']:
-                if MinorKey == 'def' and MajorKey == 'def':
-                    pass
-                else:
-                    pass
+                e = Encryptor()
+                e.EncryptText(EncryptText)
+            elif DecryptText not in [None, 'None', ''] and DecryptionTag not in [None, 'None', '']:
+                e = Encryptor()
+                e.DecryptText(DecryptText, DecryptionTag)
         except Exception as e:
             print(Red + f'Error Happened in PlayGround.Home() : {str(e)}' + Reset)
             sys.exit(0)
@@ -478,7 +499,7 @@ if __name__ == '__main__':
     GenerateMajorKeyList : int = a.gmjkl
     EncryptText = str(a.et)
     DecryptText = str(a.dt)
-    Tagg = str(a.tag)
+    DecryptionTag = str(a.tag)
 
     Verbose : bool = True if str(a.v) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.v) != None else False
     GenerateMinorKey : bool = True if str(a.gmnk) in ['y', 'Y', 'yes', 'Yes', 'True', 'true'] and str(a.gmnk) != None else False
